@@ -22,3 +22,20 @@ self.addEventListener("install",function(evt) {
     //Browser immediately activates service worker once this finishes installing
     self.skipWaiting();
 });
+
+//Activate service worker and remove old data from cache
+self.addEventListener("activate", function(evt) {
+    evt.waitUntil(
+        caches.keys().then(keyList => {
+            return Promise.all(
+                keyList.map(key => {
+                    if (key!== STATIC_CACHE && key !== DATA_CACHE_NAME) {
+                        console.log("Removing old cache data", key);
+                        return caches.delete(key);
+                    }
+                })
+            );
+        })
+    )
+    self.clients.claim();
+});
