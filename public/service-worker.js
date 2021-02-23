@@ -9,4 +9,16 @@ const FILES_TO_CACHE = [
 const STATIC_CACHE = "static-cache-v1";
 const DATA_CACHE_NAME = "data-cache-v2";
 
-//install
+//Installation
+self.addEventListener("install",function(evt) {
+    //Pre-cache image data
+    evt.waitUntil(
+        caches.open(DATA_CACHE_NAME).then((cache) => cache.add("/api/images"))
+        );
+    //Pre-cache all static assets
+    evt.waitUntil(
+        caches.open(STATIC_CACHE).then((cache) => cache.addAll(FILES_TO_CACHE))
+    );
+    //Browser immediately activates service worker once this finishes installing
+    self.skipWaiting();
+});
