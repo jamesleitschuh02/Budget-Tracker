@@ -1,32 +1,31 @@
-const STATIC_CACHE = "static-cache-v1";
-const DATA_CACHE_NAME = "data-cache-v2";
+const STATIC_CACHE = "static-cache-v2";
+const DATA_CACHE_NAME = "data-cache-v1";
 
 const FILES_TO_CACHE = [
     '/',
-    './assets/css/style.css',
-    './assets/index.js',
-    './index.html',
-    './manifest.webmanifest',
-    './assets/images/icons/icon-192x192.png',
-    './assets/images/icons/icon-512x512.png'
+    '/index.html',
+    '/assets/index.js',
+    '/assets/css/styles.css',
+    '/manifest.json',
+    '/assets/images/icons/icon-192x192.png',
+    '/assets/images/icons/icon-512x512.png'
 ];
 
 
 //Installation
 self.addEventListener("install",function(evt) {
-    //Pre-cache image data
-    evt.waitUntil(
-        caches.open(DATA_CACHE_NAME).then((cache) => cache.add("/api/images"))
-        );
     //Pre-cache all static assets
     evt.waitUntil(
-        caches.open(STATIC_CACHE).then((cache) => cache.addAll(FILES_TO_CACHE))
+        caches.open(STATIC_CACHE).then((cache) => {
+            console.log(cache);
+            return cache.addAll(FILES_TO_CACHE);
+        })
     );
     //Browser immediately activates service worker once this finishes installing
     self.skipWaiting();
 });
 
-//Activate service worker and remove old data from cache
+// //Activate service worker and remove old data from cache
 self.addEventListener("activate", function(evt) {
     evt.waitUntil(
         caches.keys().then(keyList => {
@@ -45,7 +44,7 @@ self.addEventListener("activate", function(evt) {
 
 //Enable service worker to intercept network requests
 self.addEventListener('fetch', function(evt) {
-    if (evt.request.url.includes('/api')) {
+    if (evt.request.url.includes('/api/transaction')) {
         console.log('[Service Worker] Fetch (data)', evt.request.url);
         evt.respondWith(
             caches.open(DATA_CACHE_NAME).then(cache => {
